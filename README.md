@@ -1,9 +1,81 @@
-# html-css-website
-This web contains the all necessary links for the BIT students.
-Instead of making the Moodle , Camps , Rewards Site etc.. bookmarks seperately, Make this one website as a bookmark because this contains all the links.
-Even some of first year students are not aware of special labs and also they didn't know that our bitsathy offical website contains the special lab report . For that purpose, the special lab is given.
-The achievemets are also given.
-Some students didn't know how to see the faculty contact details, for that the faculty option is given.
-In the " WHAT THE PEOPLE SAY" is emerging the campus passion to all.
+Portal-ingress\
+Overview
 
-NOTE: This site is only access through the BITSATHY mail id
+Kubernetes Resources
+
+Below are the list of Kubernetes resources as part of this helm chart
+that would get created
+
++----+--------+---------+--------+-----------------------+-----------+
+| S. | Kind   | Na      | Re     | Conditional Resources | Comments  |
+| No |        | mespace | source |                       |           |
++====+========+=========+========+=======================+===========+
+| 1  | i      |         | i      | isTlsEnabled          |           |
+|    | ngress |         | ngress |                       |           |
+|    |        |         |        | envRole is "hub" and  |           |
+|    |        |         |        | cloudflare is enabled |           |
+|    |        |         |        |                       |           |
+|    |        |         |        | isIng                 |           |
+|    |        |         |        | ressAnnotationDefined |           |
+|    |        |         |        |                       |           |
+|    |        |         |        | isCdmIng              |           |
+|    |        |         |        | ressAnnotationDefined |           |
++----+--------+---------+--------+-----------------------+-----------+
+| 2  | Job    | Spoke   | 1.     | envRole is "spoke"    |           |
+|    |        | -system | Spoke- | and                   |           |
+|    |        |         | custom | len(                  |           |
+|    |        |         | -domai | customDomain.domains) |           |
+|    |        |         | n-ngin | ne 0                  |           |
+|    |        |         | x-conf |                       |           |
+|    |        |         | ig-job |                       |           |
+|    |        |         | :      |                       |           |
+|    |        |         | dpo-c  |                       |           |
+|    |        |         | dmncj\ |                       |           |
+|    |        |         | \      |                       |           |
+|    |        |         | \      |                       |           |
+|    |        |         | \      |                       |           |
+|    |        |         | 2.     |                       |           |
+|    |        |         | spoke- |                       |           |
+|    |        |         | delete |                       |           |
+|    |        |         | -nginx |                       |           |
+|    |        |         | -confi |                       |           |
+|    |        |         | g-job: |                       |           |
+|    |        |         | dp     |                       |           |
+|    |        |         | o-dncj |                       |           |
++----+--------+---------+--------+-----------------------+-----------+
+| 3  | con    | Spoke   | Spok   | envRole is "spoke"    | These     |
+|    | figmap | -system | e-ngin | and                   | c         |
+|    |        |         | x-conf | len(                  | onfigmaps |
+|    |        |         | igmap: | customDomain.domains) | have      |
+|    |        |         |        | ne 0                  | product   |
+|    |        |         |        |                       | specific  |
+|    |        |         |        |                       | nginx     |
+|    |        |         |        |                       | confi     |
+|    |        |         |        |                       | gurations |
++----+--------+---------+--------+-----------------------+-----------+
+
+Portal-storage
+
+Overview
+
+  ---------- ---------------- ------------ ------------------------- --------------- ----------
+  1          RoleBinding      devportal    Devportal-read-resource   readRole is     
+                                                                     enabled         
+
+  2          Role             devportal    devportal-read-resource   cloudProvider   
+                                                                     is aws          
+
+  3          ServiceAccount   management   aksreaduser               Cloudprovider   
+                                                                     not aws\        
+                                                                     \               
+                                                                     readRole is     
+                                                                     enabled         
+
+  4          Group                         eksreaduser               Cloudprovider   
+                                                                     not aws\        
+                                                                     \               
+                                                                     readRole is     
+                                                                     enabled         
+
+  4          StorageClass                  devportal-block-storage                   
+  ---------- ---------------- ------------ ------------------------- --------------- ----------
