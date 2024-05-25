@@ -1,81 +1,41 @@
-Portal-ingress\
-Overview
+# Portal Ingress
 
-Kubernetes Resources
+## Overview
 
-Below are the list of Kubernetes resources as part of this helm chart
-that would get created
+This helm chart will deploy resources necessary for managing ingress and custom domain configurations for the Portal application.
 
-+----+--------+---------+--------+-----------------------+-----------+
-| S. | Kind   | Na      | Re     | Conditional Resources | Comments  |
-| No |        | mespace | source |                       |           |
-+====+========+=========+========+=======================+===========+
-| 1  | i      |         | i      | isTlsEnabled          |           |
-|    | ngress |         | ngress |                       |           |
-|    |        |         |        | envRole is "hub" and  |           |
-|    |        |         |        | cloudflare is enabled |           |
-|    |        |         |        |                       |           |
-|    |        |         |        | isIng                 |           |
-|    |        |         |        | ressAnnotationDefined |           |
-|    |        |         |        |                       |           |
-|    |        |         |        | isCdmIng              |           |
-|    |        |         |        | ressAnnotationDefined |           |
-+----+--------+---------+--------+-----------------------+-----------+
-| 2  | Job    | Spoke   | 1.     | envRole is "spoke"    |           |
-|    |        | -system | Spoke- | and                   |           |
-|    |        |         | custom | len(                  |           |
-|    |        |         | -domai | customDomain.domains) |           |
-|    |        |         | n-ngin | ne 0                  |           |
-|    |        |         | x-conf |                       |           |
-|    |        |         | ig-job |                       |           |
-|    |        |         | :      |                       |           |
-|    |        |         | dpo-c  |                       |           |
-|    |        |         | dmncj\ |                       |           |
-|    |        |         | \      |                       |           |
-|    |        |         | \      |                       |           |
-|    |        |         | \      |                       |           |
-|    |        |         | 2.     |                       |           |
-|    |        |         | spoke- |                       |           |
-|    |        |         | delete |                       |           |
-|    |        |         | -nginx |                       |           |
-|    |        |         | -confi |                       |           |
-|    |        |         | g-job: |                       |           |
-|    |        |         | dp     |                       |           |
-|    |        |         | o-dncj |                       |           |
-+----+--------+---------+--------+-----------------------+-----------+
-| 3  | con    | Spoke   | Spok   | envRole is "spoke"    | These     |
-|    | figmap | -system | e-ngin | and                   | c         |
-|    |        |         | x-conf | len(                  | onfigmaps |
-|    |        |         | igmap: | customDomain.domains) | have      |
-|    |        |         |        | ne 0                  | product   |
-|    |        |         |        |                       | specific  |
-|    |        |         |        |                       | nginx     |
-|    |        |         |        |                       | confi     |
-|    |        |         |        |                       | gurations |
-+----+--------+---------+--------+-----------------------+-----------+
+## Kubernetes Resources
 
-Portal-storage
+Below are the list of Kubernetes resources as part of this helm chart that would get created:
 
-Overview
+| S.No | Kind   | Namespace   | Resource                  | Conditional Resources                     | Comments                                      |
+| ---- | ------ | ----------- | ------------------------- | ----------------------------------------- | --------------------------------------------- |
+| 1    | Ingress| <namespace> | <ingress-resource>        | isTlsEnabled                              |                                               |
+|      |        |             |                           | envRole is "hub" and                      |                                               |
+|      |        |             |                           | cloudflare is enabled                     |                                               |
+|      |        |             |                           | isIngressAnnotationDefined                |                                               |
+|      |        |             |                           | isCdmIngressAnnotationDefined             |                                               |
+| 2    | Job    | spoke-system| <job-name>                | envRole is "spoke" and                    |                                               |
+|      |        |             | spoke-custom-domain-nginx | len(customDomain.domains) > 0             |                                               |
+|      |        |             | -config-job               |                                           |                                               |
+|      |        |             | dpo-cdmncj                |                                           |                                               |
+|      |        |             | spoke-delete-nginx-config | envRole is "spoke" and                    |                                               |
+|      |        |             | -job                      | len(customDomain.domains) > 0             |                                               |
+| 3    | ConfigMap | spoke-system | spoke-nginx-configmap | envRole is "spoke" and                    | These configmaps have product specific nginx |
+|      |        |             |                           | len(customDomain.domains) > 0             | configurations                                |
 
-  ---------- ---------------- ------------ ------------------------- --------------- ----------
-  1          RoleBinding      devportal    Devportal-read-resource   readRole is     
-                                                                     enabled         
+# Portal Storage
 
-  2          Role             devportal    devportal-read-resource   cloudProvider   
-                                                                     is aws          
+## Overview
 
-  3          ServiceAccount   management   aksreaduser               Cloudprovider   
-                                                                     not aws\        
-                                                                     \               
-                                                                     readRole is     
-                                                                     enabled         
+This section covers the storage-related Kubernetes resources that will be deployed as part of this helm chart.
 
-  4          Group                         eksreaduser               Cloudprovider   
-                                                                     not aws\        
-                                                                     \               
-                                                                     readRole is     
-                                                                     enabled         
-
-  4          StorageClass                  devportal-block-storage                   
-  ---------- ---------------- ------------ ------------------------- --------------- ----------
+| S.No | Kind           | Namespace | Resource                 | Conditional Resources                | Comments                       |
+| ---- | -------------- | --------- | ------------------------ | ------------------------------------ | ------------------------------ |
+| 1    | RoleBinding    | devportal | devportal-read-resource  | readRole is enabled                  |                                |
+| 2    | Role           | devportal | devportal-read-resource  | cloudProvider is aws                 |                                |
+| 3    | ServiceAccount | management| aksreaduser              | cloudProvider not aws                |                                |
+|      |                |           |                          | readRole is enabled                  |                                |
+| 4    | Group          | <namespace> | eksreaduser            | cloudProvider not aws                |                                |
+|      |                |           |                          | readRole is enabled                  |                                |
+| 5    | StorageClass   | <namespace> | devportal-block-storage |                                      |                                |
